@@ -233,13 +233,13 @@ local function SpawnItemSelected(self, index)
         local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
         for _, currentTechPoint in ipairs(techPoints) do
             if currentTechPoint:GetLocationName() == self.spawnLocations[index] then
-                Client.SendNetworkMessage("SelectSpawn", { techPointId = currentTechPoint:GetId() }, true)
+                Client.SendNetworkMessage("SSSelectSpawn", { techPointId = currentTechPoint:GetId() }, true)
                 self.selectedIndex = index
             end
         end
 
         if index == 10 then
-            Client.SendNetworkMessage("SelectSpawn", { techPointId = -1 }, true)
+            Client.SendNetworkMessage("SSSelectSpawn", { techPointId = -1 }, true)
             self.selectedIndex = index
         end
 

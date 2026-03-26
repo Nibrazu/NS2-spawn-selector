@@ -116,7 +116,7 @@ local function onSpawnSelectionMessage(client, message)
     end
 end
 
-Server.HookNetworkMessage("SelectSpawn", onSpawnSelectionMessage)
+Server.HookNetworkMessage("SSSelectSpawn", onSpawnSelectionMessage)
 
 local function LateInitializeSpawnSelection()
     InitializeSpawnSelection()

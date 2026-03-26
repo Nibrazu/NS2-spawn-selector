@@ -27,4 +27,4 @@ local kSelectSpawnMessage =
 	techPointId = "entityid"
 }
 
-Shared.RegisterNetworkMessage("SelectSpawn", kSelectSpawnMessage)
+Shared.RegisterNetworkMessage("SSSelectSpawn", kSelectSpawnMessage)
