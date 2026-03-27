@@ -45,14 +45,17 @@ local function SendAlienTeamMessage(messageType, locationName)
         text = "Alien commander selected a random hive start."
     end
 
+    local sentMessage = false
     local team = GetGamerules() and GetGamerules():GetTeam(kTeam2Index)
+
     if team and team.GetPlayers then
         local players = team:GetPlayers()
 
         if players then
             for _, player in ipairs(players) do
                 local client = Server.GetOwner(player)
-                if client and Server.SendNetworkMessage and kChatMessageType then
+
+                if client and Server.SendNetworkMessage and kChatMessageType and kChatMessageType.Team then
                     Server.SendNetworkMessage(client, "Chat", {
                         teamNumber = kTeam2Index,
                         teamOnly = true,
@@ -61,13 +64,16 @@ local function SendAlienTeamMessage(messageType, locationName)
                         playerId = Entity.invalidId,
                         message = text
                     }, true)
+
+                    sentMessage = true
                 end
             end
-            return
         end
     end
 
-    Shared.Message(text)
+    if not sentMessage then
+        Shared.Message(text)
+    end
 end
 
 local originalNS2GRGetChooseTechPoint
