@@ -4,6 +4,7 @@ local kSpawnSelectorEnabled = true
 
 local kSelectedMarineSpawn = nil
 local kSelectedAlienSpawn = nil
+local kSpawnSelectorInitialized = false
 
 local function GetTechPointName(tp)
     if tp and tp.GetLocationName then
@@ -47,6 +48,7 @@ originalNS2GRGetChooseTechPoint = Class_ReplaceMethod("NS2Gamerules", "ChooseTec
 local function OnGameEndClearSpawns(gamerules)
     kSelectedMarineSpawn = nil
     kSelectedAlienSpawn = nil
+    kSpawnSelectorInitialized = false
 
     local gameInfo = GetGameInfoEntity()
     if gameInfo then
@@ -60,8 +62,6 @@ end
 table.insert(gGameEndFunctions, OnGameEndClearSpawns)
 
 local function InitializeSpawnSelection()
-    kSelectedMarineSpawn = nil
-    kSelectedAlienSpawn = nil
 
     local gameInfo = GetGameInfoEntity()
     local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
@@ -75,7 +75,8 @@ local function InitializeSpawnSelection()
         gameInfo:SetSpawnSelection(-1)
     end
 
-    Shared.Message(string.format("[SpawnSelector] Initialized. Tech points found: %s", tostring(#techPoints)))
+    kSpawnSelectorInitialized = true
+    Shared.Message(string.format("[SpawnSelector] Initialized once. Tech points found: %s", tostring(#techPoints)))
 end
 
 local function onSpawnSelectionMessage(client, message)
@@ -106,6 +107,9 @@ local function onSpawnSelectionMessage(client, message)
             GetTechPointName(tp),
             tostring(tp:GetId())
         ))
+
+        -- Placeholder for team chat message.
+        -- Original NSL uses NSLSendTeamMessage(...), which is not in this isolated mod.
     else
         if gameInfo then
             gameInfo:SetSpawnSelection(-1)
@@ -157,8 +161,9 @@ end
 Server.HookNetworkMessage("SSSelectSpawn", onSpawnSelectionMessage)
 
 local function LateInitializeSpawnSelection()
-    InitializeSpawnSelection()
-    return false
+    if not kSpawnSelectorInitialized then
+        InitializeSpawnSelection()
+    end
 end
 
 Event.Hook("UpdateServer", LateInitializeSpawnSelection)
