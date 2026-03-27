@@ -6,11 +6,24 @@ local kSelectedMarineSpawn = nil
 local kSelectedAlienSpawn = nil
 local kSpawnSelectorInitialized = false
 
+local kCustomTechPointData = kCustomTechPointData
+
 local function GetTechPointName(tp)
     if tp and tp.GetLocationName then
         return tp:GetLocationName()
     end
     return "nil"
+end
+
+local function SendAlienSelectionMessage(tp)
+    if tp then
+        Shared.Message(string.format(
+            "[SpawnSelector] Alien commander chose hive start: %s",
+            tp:GetLocationName()
+        ))
+    else
+        Shared.Message("[SpawnSelector] Alien commander chose random hive start.")
+    end
 end
 
 local originalNS2GRGetChooseTechPoint
@@ -23,25 +36,17 @@ originalNS2GRGetChooseTechPoint = Class_ReplaceMethod("NS2Gamerules", "ChooseTec
 
         local techPoint = nil
 
-        if teamNumber == kTeam1Index and kSelectedMarineSpawn then
+        if teamNumber == kTeam1Index then
             techPoint = kSelectedMarineSpawn
-            Shared.Message(string.format("[SpawnSelector] Marine start forced to: %s", GetTechPointName(techPoint)))
-        elseif teamNumber == kTeam2Index and kSelectedAlienSpawn then
+        elseif teamNumber == kTeam2Index then
             techPoint = kSelectedAlienSpawn
-            Shared.Message(string.format("[SpawnSelector] Alien start forced to: %s", GetTechPointName(techPoint)))
         end
 
         if not techPoint then
             techPoint = originalNS2GRGetChooseTechPoint(self, techPoints, teamNumber)
-            Shared.Message(string.format(
-                "[SpawnSelector] Fallback random start for team %s: %s",
-                tostring(teamNumber),
-                GetTechPointName(techPoint)
-            ))
         end
 
         return techPoint
-
     end
 )
 
@@ -55,8 +60,6 @@ local function OnGameEndClearSpawns(gamerules)
         gameInfo:SetSpawnSelection(-1)
         gameInfo:SetSpawnSelectionEnabled(true)
     end
-
-    Shared.Message("[SpawnSelector] Cleared selected spawns on game end.")
 end
 
 table.insert(gGameEndFunctions, OnGameEndClearSpawns)
@@ -76,7 +79,6 @@ local function InitializeSpawnSelection()
     end
 
     kSpawnSelectorInitialized = true
-    Shared.Message(string.format("[SpawnSelector] Initialized once. Tech points found: %s", tostring(#techPoints)))
 end
 
 local function onSpawnSelectionMessage(client, message)
@@ -101,60 +103,84 @@ local function onSpawnSelectionMessage(client, message)
         if gameInfo then
             gameInfo:SetSpawnSelection(tp:GetId())
         end
-
-        Shared.Message(string.format(
-            "[SpawnSelector] Alien commander selected hive start: %s (id=%s)",
-            GetTechPointName(tp),
-            tostring(tp:GetId())
-        ))
-
-        -- Placeholder for team chat message.
-        -- Original NSL uses NSLSendTeamMessage(...), which is not in this isolated mod.
-    else
-        if gameInfo then
-            gameInfo:SetSpawnSelection(-1)
-        end
-
-        Shared.Message("[SpawnSelector] Invalid tech point received from SSSelectSpawn.")
-        return
     end
 
-    local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
-    local validTechPoints = {}
-    local totalTechPointWeight = 0
-    local gameRules = GetGamerules()
+    if kSelectedAlienSpawn then
 
-    for _, currentTechPoint in ipairs(techPoints) do
-        local teamNum = currentTechPoint:GetTeamNumberAllowed()
+        local alienTechPointName = string.lower(kSelectedAlienSpawn:GetLocationName())
+        local techPoints = EntityListToTable(Shared.GetEntitiesWithClassname("TechPoint"))
 
-        if (teamNum == 0 or teamNum == 1) and currentTechPoint:GetId() ~= kSelectedAlienSpawn:GetId() then
-            table.insert(validTechPoints, currentTechPoint)
-            totalTechPointWeight = totalTechPointWeight + currentTechPoint:GetChooseWeight()
+        SendAlienSelectionMessage(kSelectedAlienSpawn)
+
+        local marineTechPointNames = {}
+
+        if kCustomTechPointData then
+            for _, currentTechPoint in ipairs(techPoints) do
+                local lowerLoc = string.lower(currentTechPoint:GetLocationName())
+
+                if kCustomTechPointData[lowerLoc] then
+                    local enemySpawns = kCustomTechPointData[lowerLoc].enemySpawns
+
+                    if enemySpawns and table.contains(enemySpawns, alienTechPointName) then
+                        table.insertunique(marineTechPointNames, lowerLoc)
+                    end
+                end
+            end
         end
-    end
 
-    if #validTechPoints > 0 and gameRules and gameRules.techPointRandomizer then
-        local chosenTechPointWeight = gameRules.techPointRandomizer:random(0, totalTechPointWeight)
+        if marineTechPointNames and #marineTechPointNames > 0 then
+            local selectedName
 
-        for _, currentTechPoint in ipairs(validTechPoints) do
-            chosenTechPointWeight = chosenTechPointWeight - currentTechPoint:GetChooseWeight()
+            if #marineTechPointNames == 1 then
+                selectedName = marineTechPointNames[1]
+            else
+                selectedName = marineTechPointNames[math.random(1, #marineTechPointNames)]
+            end
 
-            if chosenTechPointWeight <= 0 then
-                kSelectedMarineSpawn = currentTechPoint
-                break
+            for _, currentTechPoint in ipairs(techPoints) do
+                if selectedName == string.lower(currentTechPoint:GetLocationName()) then
+                    kSelectedMarineSpawn = currentTechPoint
+                    break
+                end
             end
         end
 
         if not kSelectedMarineSpawn then
-            kSelectedMarineSpawn = validTechPoints[#validTechPoints]
+            local validTechPoints = {}
+            local totalTechPointWeight = 0
+            local gameRules = GetGamerules()
+
+            for _, currentTechPoint in ipairs(techPoints) do
+                local teamNum = currentTechPoint:GetTeamNumberAllowed()
+
+                if (teamNum == 0 or teamNum == 1) and teamNum ~= 3 then
+                    table.insert(validTechPoints, currentTechPoint)
+                    totalTechPointWeight = totalTechPointWeight + currentTechPoint:GetChooseWeight()
+                end
+            end
+
+            if #validTechPoints > 0 and gameRules and gameRules.techPointRandomizer then
+                local chosenTechPointWeight = gameRules.techPointRandomizer:random(0, totalTechPointWeight)
+
+                for _, currentTechPoint in ipairs(validTechPoints) do
+                    chosenTechPointWeight = chosenTechPointWeight - currentTechPoint:GetChooseWeight()
+
+                    if chosenTechPointWeight >= 0 then
+                        kSelectedMarineSpawn = currentTechPoint
+                        break
+                    end
+                end
+            end
         end
 
-        Shared.Message(string.format(
-            "[SpawnSelector] Marine start paired to: %s",
-            GetTechPointName(kSelectedMarineSpawn)
-        ))
     else
-        Shared.Message("[SpawnSelector] No valid marine tech points found.")
+        SendAlienSelectionMessage(nil)
+        kSelectedMarineSpawn = nil
+        kSelectedAlienSpawn = nil
+
+        if gameInfo then
+            gameInfo:SetSpawnSelection(-1)
+        end
     end
 end
 
