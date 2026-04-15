@@ -1,0 +1,119 @@
+{
+  "CustomSpawnModes": ["AliensChoose", "CustomSpawns"],
+  "CustomSpawns": {
+    "ns2_examplemap": [
+      {
+        "name": "EXAMPLE - COPY THIS BLOCK",
+        "description": "Duplicate this block, rename the map, and replace the tech point names with real ones from your map.",
+        "enabled": false,
+        "spawnData": [
+          {
+            "name": "Tech Point A",
+            "team": "Marines",
+            "weight": 1,
+            "enemyspawns": ["Tech Point B"]
+          },
+          {
+            "name": "Tech Point B",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Tech Point A"]
+          }
+        ]
+      }
+    ],
+    "ns2_tram_nextstop": [
+      {
+        "name": "Tram NextStop custom rules",
+        "description": "Aliens may only start at Warehouse or Server Room. Marines always start at Shipping.",
+        "enabled": true,
+        "spawnData": [
+          {
+            "name": "Warehouse",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Shipping"]
+          },
+          {
+            "name": "Server Room",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Shipping"]
+          },
+          {
+            "name": "Shipping",
+            "team": "Marines",
+            "weight": 1,
+            "enemyspawns": ["Warehouse", "Server Room"]
+          }
+        ]
+      }
+    ],
+    "ns2_jambi": [
+      {
+        "name": "Jambi custom rules",
+        "description": "Aliens may only start at Pipeworks or Waste Recycling. Marines always start at Docking Bay.",
+        "enabled": true,
+        "spawnData": [
+          {
+            "name": "Pipeworks",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Docking Bay"]
+          },
+          {
+            "name": "Waste Recycling",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Docking Bay"]
+          },
+          {
+            "name": "Docking Bay",
+            "team": "Marines",
+            "weight": 1,
+            "enemyspawns": ["Pipeworks", "Waste Recycling"]
+          }
+        ]
+      }
+    ],
+    "ns2_dockingmmpg": [
+      {
+        "name": "DockingMMPG custom rules",
+        "description": "Aliens choose Locker Rooms, Generator, or Departures with mapped marine responses.",
+        "enabled": true,
+        "spawnData": [
+          {
+            "name": "Locker Rooms",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Terminal"]
+          },
+          {
+            "name": "Departures",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Cafeteria"]
+          },
+          {
+            "name": "Generator",
+            "team": "Aliens",
+            "weight": 1,
+            "enemyspawns": ["Cafeteria", "Terminal"]
+          },
+          {
+            "name": "Terminal",
+            "team": "Marines",
+            "weight": 1,
+            "enemyspawns": ["Locker Rooms", "Generator"]
+          },
+          {
+            "name": "Cafeteria",
+            "team": "Marines",
+            "weight": 1,
+            "enemyspawns": ["Departures", "Generator"]
+          }
+        ]
+      }
+    ]
+  }
+}
