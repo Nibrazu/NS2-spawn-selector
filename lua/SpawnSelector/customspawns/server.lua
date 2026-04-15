@@ -7,7 +7,6 @@ local kSpawnConfigModes = { "AliensChoose", "CustomSpawns" }
 
 local kSpawnSelectorInitialized = false
 
--- Ported from NSL: shorthand / friendly spawn aliases for map-specific setups.
 local kFriendlySpawnHelpers = {
     ns2_biodome = {
         top = "atmosphere exchange",
@@ -82,11 +81,14 @@ local kFriendlySpawnHelpers = {
     },
 }
 
+local function LogSpawnSelector(message)
+    Shared.Message(string.format("[SpawnSelector] %s", message))
+end
+
 local function HasConfigMode(modeName)
     return table.contains(kSpawnConfigModes, modeName)
 end
 
--- Reads values exposed by SpawnSelector/config/server.lua if that file is loaded.
 local function GetConfigValue(key)
     if type(GetSpawnSelectorConfigValue) == "function" then
         return GetSpawnSelectorConfigValue(key)
@@ -102,8 +104,6 @@ local function RefreshSpawnConfigModes()
     end
 end
 
--- Reads map-specific spawn config for the current map and returns the first
--- active spawnData block whose optional effective/expiry dates match now.
 local function GetMapSpecificSpawns()
     if not HasConfigMode("CustomSpawns") then
         return nil
@@ -240,7 +240,6 @@ local function OnGameEndClearSpawns()
 end
 table.insert(gGameEndFunctions, OnGameEndClearSpawns)
 
--- Ported from NSL.
 local function UpdateEnemySpawnData(tpTable, currentLoc, enemySpawns)
     if not enemySpawns then
         return
@@ -273,8 +272,6 @@ local function BuildEmptyTechPointData(techPoints)
     return tpTable
 end
 
--- Ported from NSL's map-config branch of LoadCustomTechPointData(config),
--- adapted for standalone SS.
 local function BuildCustomTechPointDataFromMapConfig()
     local customSpawnData = GetMapSpecificSpawns()
     if not customSpawnData or not HasConfigMode("CustomSpawns") then
@@ -335,7 +332,10 @@ local function BuildCustomTechPointDataFromMapConfig()
         return true
     end
 
-    Shared.Message("Invalid custom spawn data!")
+    LogSpawnSelector(string.format(
+        "Invalid custom spawn data for map: %s",
+        Shared.GetMapName()
+    ))
     return false
 end
 
@@ -451,6 +451,10 @@ local function InitializeSpawnSelection()
 
         if kCustomTechPointData then
             ApplyCustomTechPointDataToTechPoints(techPoints)
+            LogSpawnSelector(string.format(
+                "Applied custom spawn rules for map: %s",
+                Shared.GetMapName()
+            ))
             GetGamerules():ResetGame()
             Server.spawnSelectionOverrides = nil
         end

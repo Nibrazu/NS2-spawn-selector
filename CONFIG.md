@@ -1,24 +1,24 @@
+
 # Spawn Selector – Config Guide
 
 This file controls **which starting locations are allowed per map**.
 
 ## 📍 Config file:
-configs/spawnselector/DEFAULT.json
+"mod-folder"/lua/SpawnSelector/config/DEFAULT.json
 
 ---
 
-# 🧠 How it works
+## 🧠 How it works
 
 - Only maps listed in the config are affected
 - Any map **not listed** → uses vanilla spawn logic
-- No config = no changes = safe by default
 
 ---
 
 ## ➕ Adding a new map
 
 ### 1. Make a copy of the example block
-
+```json
       {
         "name": "EXAMPLE - COPY THIS BLOCK",
         "description": "Duplicate this block, rename the map, and replace the tech point names with real ones from your map.",
@@ -39,9 +39,9 @@ configs/spawnselector/DEFAULT.json
         ]
       }
     ],
-
-### 2. Replace the information with the map you want to set custom spawn rules
-
+```
+### 2. Replace it with your map and real tech point names
+```json
     "ns2_jambi": [
       {
         "name": "Jambi custom rules",
@@ -69,18 +69,26 @@ configs/spawnselector/DEFAULT.json
         ]
       }
     ], 
-### (careful with the comma here, if it's the last map remove it, if not keep it.)
+```
+### 3. Watch your commas
+
+- If the map block is **not** the last one → keep the comma
+- If it **is** the last one → remove the comma
 
 ---
 
 ## 🧱 Rule format
-
-                                    | Field         | Description                             |
-  "name": "Pipeworks",              | `name`        | Tech point (must match in-game exactly) |
-  "team": "Aliens",                 | `team`        | `"Aliens"`, `"Marines"` or `"Both"`     |
-  "weight": 1,                      | `weight`      | Chance weight (leave as `1`)            |
-  "enemyspawns": ["Docking Bay"]    | `enemyspawns` | Allowed enemy start locations           |
-
+```
+| Field         | Description                             |
+| `name`        | Tech point (must match in-game exactly) |
+| `team`        | `"Aliens"`, `"Marines"` or `"Both"`     |
+| `weight`      | Chance weight (leave as `1`)            |
+| `enemyspawns` | Allowed enemy start locations           |
+```
+If multiple enemy spawns are allowed, list them in the same array:
+```json
+"enemyspawns": ["Cafeteria", "Terminal"]
+```
 ---
 
 ## 🎯 Examples
@@ -89,23 +97,31 @@ configs/spawnselector/DEFAULT.json
 
 Aliens → 2 options
 Marines → always 1
-
+```json
 {
   "name": "Pipeworks",
   "team": "Aliens",
+  "weight": 1,
   "enemyspawns": ["Docking Bay"]
-}
-
+},
+{
+  "name": "Waste Recycling",
+  "team": "Aliens",
+  "weight": 1,
+  "enemyspawns": ["Docking Bay"]
+},
+```
 ### Random marine spawn
 
 Aliens pick 1 → Marines get 2 possible
-
+```json
 {
   "name": "Generator",
   "team": "Aliens",
+  "weight": 1,
   "enemyspawns": ["Cafeteria", "Terminal"]
 }
-
+```
 ---
 
 ## 🔁 Editing existing maps
@@ -118,9 +134,9 @@ Restart server
 ---
 
 ## 🚫 Disable a map
-
+```
 "enabled": false
-
+```
 ---
 
 ## ❌ Remove a map
@@ -151,15 +167,8 @@ Auto-format file: Shift + Alt + F
 
 ## ✅ Best practice
 
-Copy existing working map
-Change names only
-Keep weight: 1
+Copy an existing working map block
+Change only the map name and tech point names
+Keep weight as 1 unless you intentionally want weighted randomness
 Test one map at a time
-
----
-
-## 🛡️ Safe behavior
-
-If a map is not in this file:
-👉 Spawn Selector does nothing
-👉 Game uses normal NS2 spawn logic
+Check console logs on map load if you have issues

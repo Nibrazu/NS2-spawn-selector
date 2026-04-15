@@ -76,7 +76,7 @@
         ]
       }
     ],
-    "ns2_dockingmmpg": [
+    "ns2_docking_mmpg": [
       {
         "name": "DockingMMPG custom rules",
         "description": "Aliens choose Locker Rooms, Generator, or Departures with mapped marine responses.",
