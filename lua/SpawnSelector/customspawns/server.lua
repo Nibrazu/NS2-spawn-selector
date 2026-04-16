@@ -229,13 +229,11 @@ originalNS2GRGetChooseTechPoint = Class_ReplaceMethod("NS2Gamerules", "ChooseTec
 local function OnGameEndClearSpawns()
     kSelectedMarineSpawn = nil
     kSelectedAlienSpawn = nil
-    kCustomTechPointData = nil
-    kSpawnSelectorInitialized = false
 
     local gameInfo = GetGameInfoEntity()
     if gameInfo then
         gameInfo:SetSpawnSelection(-1)
-        gameInfo:SetSpawnSelectionEnabled(true)
+        gameInfo:SetSpawnSelectionEnabled(HasConfigMode("AliensChoose"))
     end
 end
 table.insert(gGameEndFunctions, OnGameEndClearSpawns)
