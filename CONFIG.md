@@ -1,17 +1,54 @@
 
 # Spawn Selector – Config Guide
 
-This file controls **which starting locations are allowed per map**.
+This file gives step by step instructions on how to setup your own server's custom configuration to decide **which starting locations are allowed per map**.
+
+Workshop mod ID: 3692961962
+(Use this only for reference when locating the mod in Steam workshop content.)
 
 ## 📍 Config file:
+
+Do NOT edit:
+```
 "mod-folder"/lua/SpawnSelector/config/DEFAULT.json
+```
+This file is shipped with the mod and will be overwritten on update.
+
+### ✅ How to create your own config
+
+1. Go to:
+
+```
+"mod-folder"/lua/SpawnSelector/config/
+```
+2. Make a copy of `DEFAULT.json` and rename it to something like `myserver-CONFIG.json`
+
+Examples:
+
+`NS2SUD-CONFIG.json`
+`backup-CONFIG.json`
+`test-CONFIG.json`
+
+The file MUST end in `-CONFIG.json` or it will not be loaded.
+
+3. Edit your new file, not DEFAULT.json
+
+---
+
+## ⚙️ How config loading works
+
+The mod loads configs in this order:
+
+1. Any file matching:`*-CONFIG.json`
+2. If multiple exist → first alphabetically is used
+3. If none exist → falls back to:`DEFAULT.json`
 
 ---
 
 ## 🧠 How it works
 
 - Only maps listed in the config are affected
-- Any map **not listed** → uses vanilla spawn logic
+- Any map **not listed** uses vanilla spawn logic
 
 ---
 
@@ -171,4 +208,4 @@ Copy an existing working map block
 Change only the map name and tech point names
 Keep weight as 1 unless you intentionally want weighted randomness
 Test one map at a time
-Check console logs on map load if you have issues
+Check logs for: [SpawnSelector]

@@ -1,5 +1,7 @@
 # Spawn Selector (NS2)
 
+Workshop ID: 3692961962
+
 A lightweight standalone mod for Natural Selection 2 adapted from the NSL mod that allows the Alien Commander to select the starting hive location before the round begins — now with optional JSON-based map configuration.
 
 ---
@@ -13,7 +15,7 @@ A lightweight standalone mod for Natural Selection 2 adapted from the NSL mod th
   - Marine spawn locations
   - Spawn pairings between teams
 - Falls back to **vanilla behavior** for unconfigured maps
-- Clean standalone implementation (no NSL dependency)
+- Clean standalone implementation inspired by the NSL mod (no dependency required)
 - Lightweight and easy to extend
 
 ---
@@ -30,16 +32,16 @@ A lightweight standalone mod for Natural Selection 2 adapted from the NSL mod th
 
 ## 🧩 Configuration
 
-Spawn rules can be customized per map using a JSON file:
-
-configs/spawnselector/DEFAULT.json
-
+Spawn rules can be customized per map using a JSON file located in:
+```
+lua/SpawnSelector/config/
+```
 - Only maps listed in the config are affected
 - Unlisted maps use **default NS2 spawn logic**
 - Supports:
   - Fixed spawn pairings
   - Multiple possible enemy spawns
-  - Fully custom map setups
+  - Fully custom map specific setups
 
 👉 See [CONFIG.md](CONFIG.md) for full configuration guide
 
